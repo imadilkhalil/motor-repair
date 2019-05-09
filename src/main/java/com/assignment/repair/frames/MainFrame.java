@@ -8,9 +8,11 @@ package com.assignment.repair.frames;
 import com.assignment.repair.model.Motor;
 import com.assignment.repair.model.Task;
 import com.assignment.repair.service.MotorService;
+import java.time.LocalDateTime;
 import java.util.List;
-import javax.swing.JDialog;
-import javax.swing.JPanel;
+import javax.swing.JOptionPane;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
 /**
@@ -25,6 +27,15 @@ public class MainFrame extends javax.swing.JFrame {
      */
     public MainFrame() {
         initComponents();
+        
+        tblMotorsList.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+            public void valueChanged(ListSelectionEvent event) {
+                if(tblMotorsList.getSelectedRow() >= 0){
+                    int motorId = (int) tblMotorsList.getValueAt(tblMotorsList.getSelectedRow(), 0);
+                    refreshTasks(motorService.fetchTasks(motorId));   
+                }
+            }
+        });
     }
     
     public void refreshMotorList(List<Motor> motors){
@@ -64,6 +75,8 @@ public class MainFrame extends javax.swing.JFrame {
         jScrollPane3 = new javax.swing.JScrollPane();
         tblTasksList = new javax.swing.JTable();
         btnTaskStatus = new javax.swing.JButton();
+        jLabel5 = new javax.swing.JLabel();
+        jLabel6 = new javax.swing.JLabel();
 
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -139,28 +152,36 @@ public class MainFrame extends javax.swing.JFrame {
 
         tblTasksList.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null},
-                {null, null, null, null}
+
             },
             new String [] {
-                "Task Name", "Type", "Expected Duration", "Added On"
+                "ID", "Task Name", "Type", "Expected Duration", "Added On"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+            };
+            boolean[] canEdit = new boolean [] {
+                false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
                 return types [columnIndex];
+            }
+
+            public boolean isCellEditable(int rowIndex, int columnIndex) {
+                return canEdit [columnIndex];
             }
         });
         tblTasksList.setColumnSelectionAllowed(true);
         jScrollPane3.setViewportView(tblTasksList);
         tblTasksList.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 
-        btnTaskStatus.setText("Add Task Status");
+        btnTaskStatus.setText("Update Task Status");
+
+        jLabel5.setText("All Motors");
+
+        jLabel6.setText("Tasks for selected motor");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -192,10 +213,13 @@ public class MainFrame extends javax.swing.JFrame {
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addComponent(jScrollPane3)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(btnAddTask, javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(btnTaskStatus, javax.swing.GroupLayout.Alignment.TRAILING))))
+                        .addComponent(jLabel6)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnTaskStatus))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jLabel5)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(btnAddTask)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -221,11 +245,15 @@ public class MainFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 10, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnAddTask)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(btnAddTask)
+                    .addComponent(jLabel5))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
-                .addComponent(btnTaskStatus)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(btnTaskStatus, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(16, 16, 16))
@@ -245,14 +273,30 @@ public class MainFrame extends javax.swing.JFrame {
         int rowIndex = this.tblMotorsList.getSelectedRow();
         int motorId = (int) this.tblMotorsList.getModel().getValueAt(rowIndex, 0);
         
-        JPanel panel = new AddTaskPanel();
-        final JDialog dialog = new JDialog(this, "Add Task", true);
-        dialog.getContentPane().add(panel);
-        dialog.pack();
-        dialog.setVisible(true);
-        //Task task = new Task()
+        AddTaskPanel panel = new AddTaskPanel();
+        int result = JOptionPane.showConfirmDialog(null, panel, "Add Task",
+            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        
+        if (result == JOptionPane.OK_OPTION) {
+            System.out.println(panel.getTaskName());
+            LocalDateTime localDateTime = LocalDateTime.now();
+            Task task = new Task(panel.getTaskName(), panel.getTaskType(), panel.getDuration(), localDateTime.toString());
+            List<Task> tasks = this.motorService.addAndTaskForMotor(motorId, task);
+            
+            this.refreshTasks(tasks);
+        }
     }//GEN-LAST:event_btnAddTaskActionPerformed
 
+    private void refreshTasks(List<Task> tasks){
+        DefaultTableModel tableModel = (DefaultTableModel) this.tblTasksList.getModel();
+        tableModel.setRowCount(0);
+        
+        tasks.forEach(t -> {
+            Object dataRow[] = {t.id, t.name, t.type, t.duration, t.addedOn};
+            tableModel.addRow(dataRow);
+        });
+    }
+    
     private void tfOwnerNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfOwnerNameActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_tfOwnerNameActionPerformed
@@ -300,6 +344,8 @@ public class MainFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;

@@ -44,4 +44,14 @@ public class MotorService {
         
         return m.tasks;
     }
+    
+    public List<Task> fetchTasks(int motorId){
+        List<Motor> motorList = this.motors.stream().filter(p -> p.id == motorId).collect(Collectors.toList());
+        if(motorList == null)
+            return new ArrayList<>();
+        
+        Motor m = motorList.get(0);
+        
+        return m.tasks;
+    }
 }
