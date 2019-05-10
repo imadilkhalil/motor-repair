@@ -24,12 +24,6 @@ import java.util.logging.Logger;
 public class MotorService {
     private final MysqlConnect mysqlConnection = new MysqlConnect();
     
-    private List<Motor> motors = new ArrayList<>();
-    
-    public List<Motor> fetchMotors(){
-        return this.motors;
-    }
-    
     public List<Motor> addAndFetchMotors(Motor motor){
         String insertSql = "insert into motor(owner_name, make, model, date) values(?, ?, ?, ?)";
         
