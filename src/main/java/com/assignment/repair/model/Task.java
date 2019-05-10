@@ -5,6 +5,8 @@
  */
 package com.assignment.repair.model;
 
+import java.util.Date;
+
 /**
  *
  * @author ADIL
@@ -15,6 +17,9 @@ public class Task {
     public String type;
     public String duration;
     public String addedOn;
+    public String status;
+    public String inspectionResult;
+    public Date completionDate;
     
     public Task(){}
     
@@ -23,6 +28,16 @@ public class Task {
         this.type = type;
         this.duration = duration;
         this.addedOn = addedOn;
+    }
+    public Task(int id, String name, String type, String duration, String addedOn, String status, String inspectionResult, Date completionDate){
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.duration = duration;
+        this.addedOn = addedOn;
+        this.status = status;
+        this.inspectionResult = inspectionResult;
+        this.completionDate = completionDate;
     }
     
     public void setId(int id){

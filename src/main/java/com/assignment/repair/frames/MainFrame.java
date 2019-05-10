@@ -7,6 +7,7 @@ package com.assignment.repair.frames;
 
 import com.assignment.repair.model.Motor;
 import com.assignment.repair.model.Task;
+import com.assignment.repair.service.AuthService;
 import com.assignment.repair.service.MotorService;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -31,11 +32,33 @@ public class MainFrame extends javax.swing.JFrame {
         tblMotorsList.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
             public void valueChanged(ListSelectionEvent event) {
                 if(tblMotorsList.getSelectedRow() >= 0){
+                    btnAddTask.setEnabled(true);
                     int motorId = (int) tblMotorsList.getValueAt(tblMotorsList.getSelectedRow(), 0);
-                    refreshTasks(motorService.fetchTasks(motorId));   
+                    refreshTasks(motorService.fetchTasks(motorId));
+                }
+                else{
+                    btnAddTask.setEnabled(false);
                 }
             }
         });
+        
+        tblTasksList.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+            public void valueChanged(ListSelectionEvent event) {
+                if(tblTasksList.getSelectedRow() >= 0){
+                    btnUpdateTask.setEnabled(true);
+                }
+                else{
+                    btnUpdateTask.setEnabled(false);
+                }
+            }
+        });
+        
+        this.refreshMotorList(this.motorService.fetchAllMotors());
+        
+        btnAddTask.setEnabled(false);
+        btnUpdateTask.setEnabled(false);
+        
+        lblUsername.setText(AuthService.LOGGED_IN_USER);
     }
     
     public void refreshMotorList(List<Motor> motors){
@@ -74,9 +97,13 @@ public class MainFrame extends javax.swing.JFrame {
         btnAddTask = new javax.swing.JButton();
         jScrollPane3 = new javax.swing.JScrollPane();
         tblTasksList = new javax.swing.JTable();
-        btnTaskStatus = new javax.swing.JButton();
+        btnUpdateTask = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
+        jLabel9 = new javax.swing.JLabel();
+        lblUsername = new javax.swing.JLabel();
 
         jTable2.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -138,10 +165,11 @@ public class MainFrame extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        tblMotorsList.setColumnSelectionAllowed(true);
         tblMotorsList.setRowSelectionAllowed(true);
         jScrollPane1.setViewportView(tblMotorsList);
-        tblMotorsList.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        if (tblMotorsList.getColumnModel().getColumnCount() > 0) {
+            tblMotorsList.getColumnModel().getColumn(0).setPreferredWidth(10);
+        }
 
         btnAddTask.setText("Add Task");
         btnAddTask.addActionListener(new java.awt.event.ActionListener() {
@@ -155,14 +183,14 @@ public class MainFrame extends javax.swing.JFrame {
 
             },
             new String [] {
-                "ID", "Task Name", "Type", "Expected Duration", "Added On"
+                "ID", "Task Name", "Type", "Expected Duration", "Status", "Result", "Completion Date"
             }
         ) {
             Class[] types = new Class [] {
-                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.String.class
+                java.lang.Integer.class, java.lang.String.class, java.lang.String.class, java.lang.String.class, java.lang.Object.class, java.lang.Object.class, java.lang.Object.class
             };
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false
+                false, false, false, false, false, false, false
             };
 
             public Class getColumnClass(int columnIndex) {
@@ -173,15 +201,31 @@ public class MainFrame extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        tblTasksList.setColumnSelectionAllowed(true);
         jScrollPane3.setViewportView(tblTasksList);
-        tblTasksList.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        if (tblTasksList.getColumnModel().getColumnCount() > 0) {
+            tblTasksList.getColumnModel().getColumn(0).setPreferredWidth(10);
+        }
 
-        btnTaskStatus.setText("Update Task Status");
+        btnUpdateTask.setText("Mark Task as Complete");
+        btnUpdateTask.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUpdateTaskActionPerformed(evt);
+            }
+        });
 
         jLabel5.setText("All Motors");
 
         jLabel6.setText("Tasks for selected motor");
+
+        jLabel7.setFont(new java.awt.Font("Tahoma", 2, 10)); // NOI18N
+        jLabel7.setText("**select a motor to add task");
+
+        jLabel8.setFont(new java.awt.Font("Tahoma", 2, 10)); // NOI18N
+        jLabel8.setText("**select a task to update status");
+
+        jLabel9.setText("username:");
+
+        lblUsername.setText("placeholder");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -209,16 +253,27 @@ public class MainFrame extends javax.swing.JFrame {
                                     .addComponent(tfMake)
                                     .addComponent(tfModel, javax.swing.GroupLayout.DEFAULT_SIZE, 196, Short.MAX_VALUE))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(btnNewMotor)
-                        .addGap(0, 0, Short.MAX_VALUE))
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(btnNewMotor)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                                .addGap(0, 0, Short.MAX_VALUE)
+                                .addComponent(jLabel9)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(lblUsername, javax.swing.GroupLayout.PREFERRED_SIZE, 84, javax.swing.GroupLayout.PREFERRED_SIZE))))
                     .addComponent(jScrollPane3)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addComponent(btnTaskStatus))
+                        .addComponent(jLabel8, javax.swing.GroupLayout.PREFERRED_SIZE, 145, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(btnUpdateTask))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jLabel5)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel7)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                         .addComponent(btnAddTask)))
                 .addContainerGap())
         );
@@ -228,7 +283,9 @@ public class MainFrame extends javax.swing.JFrame {
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(tfOwnerName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(tfOwnerName, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel9)
+                    .addComponent(lblUsername))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
@@ -247,24 +304,34 @@ public class MainFrame extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(btnAddTask)
-                    .addComponent(jLabel5))
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel5)
+                        .addComponent(jLabel7)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 102, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 19, Short.MAX_VALUE)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 102, Short.MAX_VALUE)
+                .addGap(19, 19, 19)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(btnTaskStatus, javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING))
+                    .addComponent(btnUpdateTask, javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                        .addComponent(jLabel6)
+                        .addComponent(jLabel8)))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 119, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 119, Short.MAX_VALUE)
                 .addGap(16, 16, 16))
         );
 
         pack();
+        setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNewMotorActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNewMotorActionPerformed
         List<Motor> motors = 
                 this.motorService.addAndFetchMotors(new Motor(tfOwnerName.getText(), tfMake.getText(), tfModel.getText(), tfDateReceived.getText()));
+        
+        tfOwnerName.setText("");
+        tfMake.setText("");
+        tfModel.setText("");
+        tfDateReceived.setText("");
         
         this.refreshMotorList(motors);
     }//GEN-LAST:event_btnNewMotorActionPerformed
@@ -278,10 +345,9 @@ public class MainFrame extends javax.swing.JFrame {
             JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         
         if (result == JOptionPane.OK_OPTION) {
-            System.out.println(panel.getTaskName());
             LocalDateTime localDateTime = LocalDateTime.now();
             Task task = new Task(panel.getTaskName(), panel.getTaskType(), panel.getDuration(), localDateTime.toString());
-            List<Task> tasks = this.motorService.addAndTaskForMotor(motorId, task);
+            List<Task> tasks = this.motorService.addAndFetchTasksForMotor(motorId, task);
             
             this.refreshTasks(tasks);
         }
@@ -292,7 +358,7 @@ public class MainFrame extends javax.swing.JFrame {
         tableModel.setRowCount(0);
         
         tasks.forEach(t -> {
-            Object dataRow[] = {t.id, t.name, t.type, t.duration, t.addedOn};
+            Object dataRow[] = {t.id, t.name, t.type, t.duration, t.status, t.inspectionResult, t.completionDate};
             tableModel.addRow(dataRow);
         });
     }
@@ -300,6 +366,21 @@ public class MainFrame extends javax.swing.JFrame {
     private void tfOwnerNameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_tfOwnerNameActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_tfOwnerNameActionPerformed
+
+    private void btnUpdateTaskActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUpdateTaskActionPerformed
+        TaskCompletionPanel panel = new TaskCompletionPanel();
+        int result = JOptionPane.showConfirmDialog(null, panel, "Update Task Status",
+            JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        
+        if (result == JOptionPane.OK_OPTION) {
+            int motorId = (int) this.tblMotorsList.getModel().getValueAt(this.tblMotorsList.getSelectedRow(), 0);
+            int taskId = (int) this.tblTasksList.getModel().getValueAt(this.tblTasksList.getSelectedRow(), 0);
+            
+            List<Task> updatedTasks = this.motorService.updateTaskStatusAndFetchTasks(motorId, taskId, "Completed", panel.getInspectionResult());
+            
+            this.refreshTasks(updatedTasks);
+        }
+    }//GEN-LAST:event_btnUpdateTaskActionPerformed
 
     /**
      * @param args the command line arguments
@@ -339,18 +420,22 @@ public class MainFrame extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAddTask;
     private javax.swing.JButton btnNewMotor;
-    private javax.swing.JButton btnTaskStatus;
+    private javax.swing.JButton btnUpdateTask;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
+    private javax.swing.JLabel jLabel8;
+    private javax.swing.JLabel jLabel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JSeparator jSeparator1;
     private javax.swing.JTable jTable2;
+    private javax.swing.JLabel lblUsername;
     private javax.swing.JTable tblMotorsList;
     private javax.swing.JTable tblTasksList;
     private javax.swing.JTextField tfDateReceived;

@@ -34,6 +34,15 @@ public class Motor {
         this.date = date;
     }
     
+    public Motor(int id, String ownerName, String make, String model, String date){
+        this();
+        this.id = id;
+        this.ownerName = ownerName;
+        this.make = make;
+        this.model = model;
+        this.date = date;
+    }
+    
     public void setId(int id){
         this.id = id;
     }
